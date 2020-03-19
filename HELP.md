@@ -11,12 +11,22 @@ There are many TODOs:
 * Once the system restarts, the short codes start from the first again. This is not good.
 **** Move the short code to its own service?
 **** Randomize the short codes that are retrieved
-* Fetching the original URL needs to happen via the short code. Right now, we need the SHA1.
+
 * Redirect the short URL to the stored (long) URL
 * Security
 * Validate the inputs and sanitize the URLs
-* Create a Front-end to complete the functionality 
+* Create a Front-end to complete the functionality
+* Load tests
+* Logging everywhere
+* Unit tests
+* Deploy to production (DigitalOcean? AWS?)
+* Better database choice for scalability?
+* Enable request tracing for better operability and debuggability
+ 
 * More...
+
+DONE:
+* Fetching the original URL now happens via the short code.
 
 To run the service:
 ./gradlew -s bootRun

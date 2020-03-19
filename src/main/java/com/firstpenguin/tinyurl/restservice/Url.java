@@ -2,11 +2,18 @@ package com.firstpenguin.tinyurl.restservice;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Target;
 
 import javax.persistence.*;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Entity
-@Table(name="URL")
+@Table(name="URL", indexes = {
+        @Index(columnList = "shortUrl", name = "short_url_hidx")
+})
 public class Url {
     @Id
     //@GeneratedValue(strategy = GenerationType.AUTO)

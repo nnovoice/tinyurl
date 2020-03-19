@@ -32,6 +32,7 @@ public class TinyURLController {
 
     @GetMapping(path="/short/{id}")
     public Optional<Url> getShortUrl(@PathVariable String id) {
-        return urlRepository.findById(id);
+        return Optional.of(urlRepository.findByShortUrl(id));
+        //return urlRepository.findById(id);
     }
 }
