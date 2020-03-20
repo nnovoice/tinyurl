@@ -20,19 +20,24 @@ public class TinyURLController {
     ShortUrlCodeGenerator<String> shortUrlCodeGenerator;
 
     @PostMapping(path = "/short")
-    public Url shortUrl(@RequestBody Url url) {
+    public Url shortUrl(@RequestBody Url url) throws Exception {
         String sha1 = DigestUtils.sha1Hex(url.getUrl());
-        System.out.println(sha1 + "length=" + sha1.length());
-        url.setId(sha1);
-        if (shortUrlCodeGenerator.hasNext()) {
-            url.setShortUrl(shortUrlCodeGenerator.next());
+
+        // do we have the URL already stored?
+        Url urlFromRepo = urlRepository.findByLongUrlHash(sha1);
+
+        // if the URL is not stored and there is a shortURL code
+        if (urlFromRepo == null && shortUrlCodeGenerator.hasNext()) {
+            url.setId(shortUrlCodeGenerator.next());
+            url.setLongUrlHash(DigestUtils.sha1Hex(url.getUrl()));
+            return urlRepository.save(url);
+        } else {
+            throw new Exception("URL already exists.");
         }
-        return urlRepository.save(url);
     }
 
     @GetMapping(path="/short/{id}")
     public Optional<Url> getShortUrl(@PathVariable String id) {
-        return Optional.of(urlRepository.findByShortUrl(id));
-        //return urlRepository.findById(id);
+        return urlRepository.findById(id);
     }
 }

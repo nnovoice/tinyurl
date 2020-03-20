@@ -2,21 +2,20 @@ package com.firstpenguin.tinyurl.restservice;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Target;
 
-import javax.persistence.*;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Index;
+import javax.persistence.Id;
+import javax.persistence.Column;
 
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Entity
 @Table(name="URL", indexes = {
-        @Index(columnList = "shortUrl", name = "short_url_hidx")
+        @Index(columnList = "longUrlHash", name = "long_url_hash_hidx")
 })
 public class Url {
     @Id
-    //@GeneratedValue(strategy = GenerationType.AUTO)
     @Getter
     @Setter
     private String id;
@@ -26,16 +25,16 @@ public class Url {
     @Setter
     private String url;
 
-    @Column(name="shortUrl")
+    @Column(name="longUrlHash")
     @Getter
     @Setter
-    private String shortUrl;
+    private String longUrlHash;
 
-    public Url() { id = ""; url = ""; shortUrl = ""; }
+    public Url() { id = ""; url = ""; longUrlHash = ""; }
 
-    public Url(String id, String url, String shortUrl) {
+    public Url(String id, String url, String longUrlHash) {
         this.id = id;
         this.url = url;
-        this.shortUrl = shortUrl;
+        this.longUrlHash = longUrlHash;
     }
 }
