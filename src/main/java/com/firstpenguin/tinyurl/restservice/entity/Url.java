@@ -1,4 +1,4 @@
-package com.firstpenguin.tinyurl.restservice;
+package com.firstpenguin.tinyurl.restservice.entity;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -8,13 +8,17 @@ import javax.persistence.Table;
 import javax.persistence.Index;
 import javax.persistence.Id;
 import javax.persistence.Column;
-
+import java.io.Serializable;
 
 @Entity
 @Table(name="URL", indexes = {
         @Index(columnList = "longUrlHash", name = "long_url_hash_hidx")
 })
-public class Url {
+public class Url implements Serializable {
+
+    // For serializing and deserializing
+    private static final long serialVersionUID = 1L;
+
     @Id
     @Getter
     @Setter

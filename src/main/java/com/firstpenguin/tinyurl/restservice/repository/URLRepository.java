@@ -1,5 +1,6 @@
-package com.firstpenguin.tinyurl.restservice;
+package com.firstpenguin.tinyurl.restservice.repository;
 
+import com.firstpenguin.tinyurl.restservice.entity.Url;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
