@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.firstpenguin.tinyurl.restservice.entity.Url;
 import com.firstpenguin.tinyurl.restservice.repository.RedisUrlRepository;
 import com.firstpenguin.tinyurl.restservice.repository.URLRepository;
+import com.firstpenguin.tinyurl.restservice.services.ShortURLCodeGenerationService;
+import com.firstpenguin.tinyurl.restservice.util.GenerationSpaceExhaustedException;
 import com.firstpenguin.tinyurl.restservice.util.ShortUrlCodeGenerator;
 
 @RestController
@@ -25,7 +27,7 @@ public class TinyURLController {
     RedisUrlRepository redisUrlRepository;
 
     @Autowired
-    ShortUrlCodeGenerator<String> shortUrlCodeGenerator;
+    ShortURLCodeGenerationService shortUrlGenerationService;
 
     @PostMapping(path = "/short")
     public Url shortUrl(@RequestBody Url url) throws Exception {
@@ -34,19 +36,27 @@ public class TinyURLController {
         // do we have the URL already stored?
         // TODO: move this call to the Cache
         Url urlFromRepo = urlRepository.findByLongUrlHash(sha1);
+        
+        if (urlFromRepo != null) {
+        	return urlFromRepo;
+        }
+        else{
+        	// if the URL is not stored generate a shortURL sequence
+        	try {
+        		String shortURL = shortUrlGenerationService.getShortURL();
+        		url.setId(shortURL);
+                url.setLongUrlHash(DigestUtils.sha1Hex(url.getUrl()));
 
-        // if the URL is not stored and there is a shortURL code
-        if (urlFromRepo == null && shortUrlCodeGenerator.hasNext()) {
-            url.setId(shortUrlCodeGenerator.next());
-            url.setLongUrlHash(DigestUtils.sha1Hex(url.getUrl()));
+                // save it to the Cache
+                redisUrlRepository.save(url);
 
-            // save it to the Cache
-            redisUrlRepository.save(url);
-
-            // save it to the DB
-            return urlRepository.save(url);
-        } else {
-            throw new Exception("URL already exists.");
+                // save it to the DB
+                return urlRepository.save(url);
+        	}
+        	catch(GenerationSpaceExhaustedException ex) {
+        		//log the message
+        	}
+            
         }
     }
 
