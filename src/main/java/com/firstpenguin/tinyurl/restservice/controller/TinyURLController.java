@@ -27,7 +27,7 @@ public class TinyURLController {
     @Autowired
     ShortUrlCodeGenerator<String> shortUrlCodeGenerator;
 
-    @PostMapping(path = "/short")
+    @PostMapping(path="/short")
     public Url shortUrl(@RequestBody Url url) throws Exception {
         String sha1 = DigestUtils.sha1Hex(url.getUrl());
 
@@ -35,19 +35,24 @@ public class TinyURLController {
         // TODO: move this call to the Cache
         Url urlFromRepo = urlRepository.findByLongUrlHash(sha1);
 
-        // if the URL is not stored and there is a shortURL code
-        if (urlFromRepo == null && shortUrlCodeGenerator.hasNext()) {
-            url.setId(shortUrlCodeGenerator.next());
-            url.setLongUrlHash(DigestUtils.sha1Hex(url.getUrl()));
-
-            // save it to the Cache
-            redisUrlRepository.save(url);
-
-            // save it to the DB
-            return urlRepository.save(url);
-        } else {
+        if (urlFromRepo != null) {
             throw new Exception("URL already exists.");
         }
+
+        if (!shortUrlCodeGenerator.hasNext()) {
+            throw new Exception("No more short URLs available.");
+        }
+
+        url.setId(shortUrlCodeGenerator.next());
+        url.setLongUrlHash(DigestUtils.sha1Hex(url.getUrl()));
+
+        // save it to the Cache
+        redisUrlRepository.save(url);
+
+        // save it to the DB
+        urlRepository.save(url);
+
+        return url;
     }
 
     @GetMapping(path="/short/{id}")
