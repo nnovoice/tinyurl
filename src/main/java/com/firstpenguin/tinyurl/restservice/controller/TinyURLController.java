@@ -62,7 +62,9 @@ public class TinyURLController {
         Optional<Url> url = Optional.ofNullable(redisUrlRepository.findById(id));
         if (!url.isPresent()) {
             url = urlRepository.findById(id);
-            redisUrlRepository.save(url.get());
+            if(url.isPresent()) {
+            	redisUrlRepository.save(url.get());
+            }
         }
         return url;
     }
