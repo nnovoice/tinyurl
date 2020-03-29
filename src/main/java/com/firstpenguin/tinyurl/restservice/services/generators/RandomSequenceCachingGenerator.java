@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Component;
 
-import com.firstpenguin.tinyurl.restservice.util.SequenceGenerationException;
+import com.firstpenguin.tinyurl.restservice.exception.SequenceGenerationException;
 
 @Component
 public class RandomSequenceCachingGenerator extends URLSequenceGenerator {
@@ -18,6 +18,10 @@ public class RandomSequenceCachingGenerator extends URLSequenceGenerator {
 	
 	public RandomSequenceCachingGenerator() {
 		cache = new ArrayBlockingQueue<String>(cacheCapacity);
+		//TODO. Inject it through Spring
+		this.seqLen = 8;
+		//TODO. Inject it through Spring
+		this.allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+@".toCharArray();
 	}
 	
 	@Override
@@ -36,8 +40,8 @@ public class RandomSequenceCachingGenerator extends URLSequenceGenerator {
 	private String generate() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < seqLen; i++) {
-            int index = randomGenerator.nextInt(choices.size());
-            sb.append(choices.get(index));
+            int index = randomGenerator.nextInt(allowedChars.length);
+            sb.append(allowedChars[index]);
         }
 		return sb.toString();
 	}

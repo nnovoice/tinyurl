@@ -1,8 +1,6 @@
 package com.firstpenguin.tinyurl.restservice.services.generators;
 
-import java.util.List;
-
-import com.firstpenguin.tinyurl.restservice.util.SequenceGenerationException;
+import com.firstpenguin.tinyurl.restservice.exception.SequenceGenerationException;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +18,7 @@ public abstract class URLSequenceGenerator implements Runnable {
 	Integer seqLen;
 	
 	@Setter
-	List<Character> choices;
+	char[] allowedChars;
 	
 	@Setter
 	boolean abort;
