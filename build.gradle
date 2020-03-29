@@ -18,6 +18,8 @@ configurations {
 	}
 }
 
+apply plugin: 'idea'
+
 repositories {
 	mavenCentral()
 }
@@ -41,14 +43,16 @@ dependencies {
 
 	compile group: 'org.springframework.data', name: 'spring-data-commons', version: '2.2.4.RELEASE'
 
-	// Tried Redis here
+	// Redis
 	implementation 'org.springframework.session:spring-session-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	compile group: 'redis.clients', name: 'jedis'
 
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}

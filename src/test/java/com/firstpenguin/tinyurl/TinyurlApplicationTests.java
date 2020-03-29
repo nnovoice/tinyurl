@@ -1,14 +1,16 @@
 package com.firstpenguin.tinyurl;
 
-import org.junit.Test;
-import org.testng.annotations.AfterTest;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class TinyurlApplicationTests {
+public class TinyurlApplicationTests {
 
-	@Test
-	public void contextLoads() {
-	}
+//	@Test
+//	public void contextLoads() {
+//		System.out.println("hello from SpringBootTest.");
+//		assert (true);
+//	}
 
 }

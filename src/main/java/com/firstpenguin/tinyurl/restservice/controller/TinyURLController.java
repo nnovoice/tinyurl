@@ -29,7 +29,7 @@ public class TinyURLController {
     @Autowired
     ShortURLCodeGenerationService shortUrlGenerationService;
 
-    @PostMapping(path = "/short")
+    @PostMapping(path="/short")
     public Url shortUrl(@RequestBody Url url) throws Exception {
         String sha1 = DigestUtils.sha1Hex(url.getUrl());
 
@@ -47,10 +47,13 @@ public class TinyURLController {
         		url.setId(shortURL);
                 url.setLongUrlHash(DigestUtils.sha1Hex(url.getUrl()));
 
-                // save it to the Cache
+<<<<<<< .mine                // save it to the Cache
                 redisUrlRepository.save(url);
-
-                // save it to the DB
+=======        if (urlFromRepo != null) {
+            throw new Exception("URL already exists.");
+        }
+>>>>>>> .theirs
+<<<<<<< .mine                // save it to the DB
                 return urlRepository.save(url);
         	}
         	catch(GenerationSpaceExhaustedException ex) {
@@ -58,7 +61,21 @@ public class TinyURLController {
         	}
             
         }
-    }
+=======        if (!shortUrlCodeGenerator.hasNext()) {
+            throw new Exception("No more short URLs available.");
+        }
+
+        url.setId(shortUrlCodeGenerator.next());
+        url.setLongUrlHash(DigestUtils.sha1Hex(url.getUrl()));
+
+        // save it to the Cache
+        redisUrlRepository.save(url);
+
+        // save it to the DB
+        urlRepository.save(url);
+
+        return url;
+>>>>>>> .theirs    }
 
     @GetMapping(path="/short/{id}")
     public Optional<Url> getShortUrl(@PathVariable String id) {
