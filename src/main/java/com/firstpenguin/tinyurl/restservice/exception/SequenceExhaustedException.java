@@ -1,29 +1,11 @@
 package com.firstpenguin.tinyurl.restservice.util;
 
-public class GenerationSpaceExhaustedException extends Exception {
+public class SequenceExhaustedException extends Exception {
 
-	public GenerationSpaceExhaustedException() {
-		// TODO Auto-generated constructor stub
+	public SequenceExhaustedException() {
 	}
 
-	public GenerationSpaceExhaustedException(String arg0) {
+	public SequenceExhaustedException(String arg0) {
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
-
-	public GenerationSpaceExhaustedException(Throwable arg0) {
-		super(arg0);
-		// TODO Auto-generated constructor stub
-	}
-
-	public GenerationSpaceExhaustedException(String arg0, Throwable arg1) {
-		super(arg0, arg1);
-		// TODO Auto-generated constructor stub
-	}
-
-	public GenerationSpaceExhaustedException(String arg0, Throwable arg1, boolean arg2, boolean arg3) {
-		super(arg0, arg1, arg2, arg3);
-		// TODO Auto-generated constructor stub
-	}
-
 }
