@@ -21,6 +21,8 @@ public class RandomSequenceCachingGenerator extends URLSequenceGenerator {
 		//TODO. Inject it through Spring
 		this.seqLen = 8;
 		//TODO. Inject it through Spring
+		this.abort = false;
+		//TODO. Inject it through Spring
 		this.allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+@".toCharArray();
 	}
 	
