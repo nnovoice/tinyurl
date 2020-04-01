@@ -1,6 +1,9 @@
 package com.firstpenguin.tinyurl.restservice.services;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import com.firstpenguin.tinyurl.restservice.repository.URLRepository;
@@ -11,10 +14,18 @@ import com.firstpenguin.tinyurl.restservice.exception.SequenceGenerationExceptio
 public class ShortURLCodeGenerationService {
 	
 	@Autowired
+    private TaskExecutor taskExecutor;
+	
+	@Autowired
 	RandomSequenceCachingGenerator generator;
 	
 	@Autowired
     URLRepository urlRepository;
+	
+	@PostConstruct
+    public void init() {
+		taskExecutor.execute(generator);
+    }
 	
 	public String getShortURL() throws SequenceGenerationException {
 		String candidate;
