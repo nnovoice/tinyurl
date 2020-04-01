@@ -39,22 +39,17 @@ public class TinyURLController {
         	return urlFromRepo;
         }
 
-        try {
-    		String shortURL = shortUrlGenerationService.getShortURL();
-    		url.setId(shortURL);
-            url.setLongUrlHash(DigestUtils.sha1Hex(url.getUrl()));
+        String shortURL = shortUrlGenerationService.getShortURL();
+        url.setId(shortURL);
+        url.setLongUrlHash(DigestUtils.sha1Hex(url.getUrl()));
 
-            // save it to the Cache
-            redisUrlRepository.save(url);
+        // save it to the Cache
+        redisUrlRepository.save(url);
 
-            //save it to the DB
-            urlRepository.save(url);
+        //save it to the DB
+        urlRepository.save(url);
 
-            return url;
-    	}
-    	catch(SequenceExhaustedException ex) {
-    		//log the message
-    	}
+        return url;
     }
 
     @GetMapping(path="/short/{id}")
