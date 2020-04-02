@@ -18,49 +18,49 @@ import com.firstpenguin.tinyurl.restservice.services.ShortURLCodeGenerationServi
 
 @RestController
 public class TinyURLController {
-    @Autowired
-    URLRepository urlRepository;
+	@Autowired
+	URLRepository urlRepository;
 
-    @Autowired
-    RedisUrlRepository redisUrlRepository;
+	@Autowired
+	RedisUrlRepository redisUrlRepository;
 
-    @Autowired
-    ShortURLCodeGenerationService shortUrlGenerationService;
+	@Autowired
+	ShortURLCodeGenerationService shortUrlGenerationService;
 
-    @PostMapping(path="/short")
-    public Url shortUrl(@RequestBody Url url) throws Exception {
-        String sha1 = DigestUtils.sha1Hex(url.getUrl());
+	@PostMapping(path="/short")
+	public Url shortUrl(@RequestBody Url url) throws Exception {
+		String sha1 = DigestUtils.sha1Hex(url.getUrl());
 
-        // do we have the URL already stored?
-        // TODO: move this call to the Cache
-        Url urlFromRepo = urlRepository.findByLongUrlHash(sha1);
-        
-        if (urlFromRepo != null) {
-        	return urlFromRepo;
-        }
+		// do we have the URL already stored?
+		// TODO: move this call to the Cache
+		Url urlFromRepo = urlRepository.findByLongUrlHash(sha1);
 
-        String shortURL = shortUrlGenerationService.getShortURL();
-        url.setId(shortURL);
-        url.setLongUrlHash(DigestUtils.sha1Hex(url.getUrl()));
+		if (urlFromRepo != null) {
+			return urlFromRepo;
+		}
 
-        // save it to the Cache
-        redisUrlRepository.save(url);
+		String shortURL = shortUrlGenerationService.getShortURL();
+		url.setId(shortURL);
+		url.setLongUrlHash(DigestUtils.sha1Hex(url.getUrl()));
 
-        //save it to the DB
-        urlRepository.save(url);
+		// save it to the Cache
+		redisUrlRepository.save(url);
 
-        return url;
-    }
+		//save it to the DB
+		urlRepository.save(url);
 
-    @GetMapping(path="/short/{id}")
-    public Optional<Url> getShortUrl(@PathVariable String id) {
-        Optional<Url> url = Optional.ofNullable(redisUrlRepository.findById(id));
-        if (!url.isPresent()) {
-            url = urlRepository.findById(id);
-            if(url.isPresent()) {
-            	redisUrlRepository.save(url.get());
-            }
-        }
-        return url;
-    }
+		return url;
+	}
+
+	@GetMapping(path="/short/{id}")
+	public Optional<Url> getShortUrl(@PathVariable String id) {
+		Optional<Url> url = Optional.ofNullable(redisUrlRepository.findById(id));
+		if (!url.isPresent()) {
+			url = urlRepository.findById(id);
+			if(url.isPresent()) {
+				redisUrlRepository.save(url.get());
+			}
+		}
+		return url;
+	}
 }
