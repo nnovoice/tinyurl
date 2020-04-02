@@ -42,9 +42,9 @@ public class RandomSequenceCachingGenerator extends URLSequenceGenerator {
 	private String generate() {
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < seqLen; i++) {
-            int index = randomGenerator.nextInt(allowedChars.length);
-            sb.append(allowedChars[index]);
-        }
+			int index = randomGenerator.nextInt(allowedChars.length);
+			sb.append(allowedChars[index]);
+		}
 		return sb.toString();
 	}
 	

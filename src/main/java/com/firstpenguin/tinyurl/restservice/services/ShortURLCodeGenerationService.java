@@ -14,18 +14,18 @@ import com.firstpenguin.tinyurl.restservice.exception.SequenceGenerationExceptio
 public class ShortURLCodeGenerationService {
 	
 	@Autowired
-    private TaskExecutor taskExecutor;
+	private TaskExecutor taskExecutor;
 	
 	@Autowired
 	RandomSequenceCachingGenerator generator;
 	
 	@Autowired
-    URLRepository urlRepository;
+	URLRepository urlRepository;
 	
 	@PostConstruct
-    public void init() {
+	public void init() {
 		taskExecutor.execute(generator);
-    }
+	}
 	
 	public String getShortURL() throws SequenceGenerationException {
 		String candidate;

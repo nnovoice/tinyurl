@@ -12,33 +12,33 @@ import java.io.Serializable;
 
 @Entity
 @Table(name="URL", indexes = {
-        @Index(columnList = "longUrlHash", name = "long_url_hash_hidx")
+		@Index(columnList = "longUrlHash", name = "long_url_hash_hidx")
 })
 public class Url implements Serializable {
 
-    // For serializing and deserializing
-    private static final long serialVersionUID = 1L;
+	// For serializing and deserializing
+	private static final long serialVersionUID = 1L;
 
-    @Id
-    @Getter
-    @Setter
-    private String id;
+	@Id
+	@Getter
+	@Setter
+	private String id;
 
-    @Column(name="longUrl")
-    @Getter
-    @Setter
-    private String url;
+	@Column(name="longUrl")
+	@Getter
+	@Setter
+	private String url;
 
-    @Column(name="longUrlHash")
-    @Getter
-    @Setter
-    private String longUrlHash;
+	@Column(name="longUrlHash")
+	@Getter
+	@Setter
+	private String longUrlHash;
 
-    public Url() { id = ""; url = ""; longUrlHash = ""; }
+	public Url() { id = ""; url = ""; longUrlHash = ""; }
 
-    public Url(String id, String url, String longUrlHash) {
-        this.id = id;
-        this.url = url;
-        this.longUrlHash = longUrlHash;
-    }
+	public Url(String id, String url, String longUrlHash) {
+		this.id = id;
+		this.url = url;
+		this.longUrlHash = longUrlHash;
+	}
 }
