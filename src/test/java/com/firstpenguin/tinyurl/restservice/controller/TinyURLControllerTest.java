@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.firstpenguin.tinyurl.restservice.entity.Url;
+import com.firstpenguin.tinyurl.restservice.exception.SequenceGenerationException;
 import com.firstpenguin.tinyurl.restservice.repository.RedisUrlRepository;
 import com.firstpenguin.tinyurl.restservice.repository.URLRepository;
 import com.firstpenguin.tinyurl.restservice.services.ShortURLCodeGenerationService;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.anyString;
 
@@ -24,8 +26,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.Assert;
+import org.springframework.web.util.NestedServletException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -94,11 +99,12 @@ public class TinyURLControllerTest {
     }
 
     @Test
-    public void testPostShortUrl_exceptionWhenAllElementsHaveBeenGenerated() throws Exception {
+    public void testPostShortUrl_exceptionWhenAllElementsHaveBeenGenerated() throws SequenceGenerationException {
     	when(urlRepository.findByLongUrlHash(anyString())).thenReturn(null);
-    	when(svc.getShortURL()).thenThrow(SequenceExhaustedException.class);
+    	when(svc.getShortURL()).thenThrow(SequenceGenerationException.class);
    
-        Assertions.assertThrows(SequenceExhaustedException.class, () ->
+        // SequenceGenerationException shows up as NestedServletException!
+    	Assertions.assertThrows(NestedServletException.class, () ->
                 mvc.perform(post("/short")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(url))));
@@ -125,6 +131,9 @@ public class TinyURLControllerTest {
         when(redisUrlRepository.findById(anyString())).thenReturn(null);
         when(urlRepository.findById(anyString())).thenReturn(Optional.empty());
 
-        mvc.perform(getShortUrlRequestBuilder).andExpect(content().json(""));
+        MvcResult result = mvc.perform(getShortUrlRequestBuilder).andReturn();
+        //Assert.isNull(result.getResponse().getContentAsString(), "Found content string to be null");
+        assert (result.getResponse().getContentAsString() == null);
+        //System.out.println(result.getResponse().getContentAsString());
     }
 }

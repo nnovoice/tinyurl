@@ -1,4 +1,4 @@
-package com.firstpenguin.tinyurl.restservice.util;
+package com.firstpenguin.tinyurl.restservice.exception;
 
 public class SequenceExhaustedException extends Exception {
 
