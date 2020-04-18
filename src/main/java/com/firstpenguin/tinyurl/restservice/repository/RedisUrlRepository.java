@@ -7,20 +7,20 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class RedisUrlRepository {
-    private HashOperations hashOperations;
+	private HashOperations hashOperations;
 
-    private RedisTemplate redisTemplate;
+	private RedisTemplate redisTemplate;
 
-    public RedisUrlRepository(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-        this.hashOperations = this.redisTemplate.opsForHash();
-    }
+	public RedisUrlRepository(RedisTemplate redisTemplate) {
+		this.redisTemplate = redisTemplate;
+		this.hashOperations = this.redisTemplate.opsForHash();
+	}
 
-    public void save(Url url) {
-        hashOperations.put("url", url.getId(), url);
-    }
+	public void save(Url url) {
+		hashOperations.put("url", url.getId(), url);
+	}
 
-    public Url findById(String id) {
-        return (Url) hashOperations.get("url", id);
-    }
+	public Url findById(String id) {
+		return (Url) hashOperations.get("url", id);
+	}
 }

@@ -4,14 +4,17 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.firstpenguin.tinyurl.restservice.entity.Url;
+import com.firstpenguin.tinyurl.restservice.exception.SequenceGenerationException;
 import com.firstpenguin.tinyurl.restservice.repository.RedisUrlRepository;
 import com.firstpenguin.tinyurl.restservice.repository.URLRepository;
-import com.firstpenguin.tinyurl.restservice.util.ShortUrlCodeGenerator;
-
+import com.firstpenguin.tinyurl.restservice.services.ShortURLCodeGenerationService;
+import com.firstpenguin.tinyurl.restservice.exception.SequenceExhaustedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.anyString;
 
@@ -23,8 +26,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.Assert;
+import org.springframework.web.util.NestedServletException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -54,22 +60,23 @@ public class TinyURLControllerTest {
     RedisUrlRepository redisUrlRepository;
 
     @MockBean
-    ShortUrlCodeGenerator<String> shortUrlCodeGenerator;
+    ShortURLCodeGenerationService svc;
 
     private static Url url;
     private static Url mockUrl;
-
+    private static RequestBuilder getShortUrlRequestBuilder;
+    
     @BeforeAll
     static void init() {
         url = new Url("", LONG_URL, "");
         mockUrl = new Url(ID, LONG_URL, LONG_URL_HASH);
+        getShortUrlRequestBuilder = MockMvcRequestBuilders.get("/short/" + ID);
     }
 
     @Test
     public void testPostShortUrl_noException() throws Exception {
         when(urlRepository.findByLongUrlHash(anyString())).thenReturn(null);
-        when(shortUrlCodeGenerator.hasNext()).thenReturn(true);
-        when(shortUrlCodeGenerator.next()).thenReturn(ID);
+        when(svc.getShortURL()).thenReturn(ID);
 
         mvc.perform(post("/short")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -80,32 +87,53 @@ public class TinyURLControllerTest {
     }
 
     @Test
-    public void testPostShortUrl_elementExistsException() throws Exception {
-        when(urlRepository.findByLongUrlHash(anyString())).thenReturn(url);
+    public void testPostShortUrl_elementExists() throws Exception {
+        when(urlRepository.findByLongUrlHash(anyString())).thenReturn(mockUrl);
+        
+        mvc.perform(post("/short")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(url)))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(content().json(EXPECTED_JSON_RESPONSE));
+    }
 
-        Assertions.assertThrows(Exception.class, () ->
+    @Test
+    public void testPostShortUrl_exceptionWhenAllElementsHaveBeenGenerated() throws SequenceGenerationException {
+    	when(urlRepository.findByLongUrlHash(anyString())).thenReturn(null);
+    	when(svc.getShortURL()).thenThrow(SequenceGenerationException.class);
+   
+        // SequenceGenerationException shows up as NestedServletException!
+    	Assertions.assertThrows(NestedServletException.class, () ->
                 mvc.perform(post("/short")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(url))));
     }
 
     @Test
-    public void testPostShortUrl_exceptionWhenAllElementsHaveBeenGenerated() throws Exception {
-        when(urlRepository.findById(anyString())).thenReturn(Optional.empty());
-        when(shortUrlCodeGenerator.hasNext()).thenReturn(false);
+    public void testGetUrl_WhenURLExistsInCache() throws Exception {
+        when(redisUrlRepository.findById(anyString())).thenReturn(mockUrl);
 
-        Assertions.assertThrows(Exception.class, () ->
-                mvc.perform(post("/short")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(url))));
+        mvc.perform(getShortUrlRequestBuilder).andExpect(content().json(EXPECTED_JSON_RESPONSE));
     }
-
+    
     @Test
-    public void testGetUrl() throws Exception {
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.get("/short/" + ID);
+    public void testGetUrl_WhenURLExistsButNotInCache() throws Exception {
         when(redisUrlRepository.findById(anyString())).thenReturn(null);
         when(urlRepository.findById(anyString())).thenReturn(Optional.of(mockUrl));
 
-        mvc.perform(requestBuilder).andExpect(content().json(EXPECTED_JSON_RESPONSE));
+        mvc.perform(getShortUrlRequestBuilder).andExpect(content().json(EXPECTED_JSON_RESPONSE));
+        //verify(redisUrlRepository,).save(mockUrl);
+    }
+    
+    @Test
+    public void testGetUrl_WhenURLDoesNotExistsAtAll() throws Exception {
+        when(redisUrlRepository.findById(anyString())).thenReturn(null);
+        when(urlRepository.findById(anyString())).thenReturn(Optional.empty());
+
+        MvcResult result = mvc.perform(getShortUrlRequestBuilder).andReturn();
+        //Assert.isNull(result.getResponse().getContentAsString(), "Found content string to be null");
+        assert (result.getResponse().getContentAsString() == null);
+        //System.out.println(result.getResponse().getContentAsString());
     }
 }

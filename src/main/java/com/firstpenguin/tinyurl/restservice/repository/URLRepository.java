@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface URLRepository extends JpaRepository<Url, String> {
-    Optional<Url> findById(String id);
+	Optional<Url> findById(String id);
 
-    @Query("SELECT t FROM Url t WHERE t.longUrlHash = ?1")
-    Url findByLongUrlHash(String longUrlHash);
+	@Query("SELECT t FROM Url t WHERE t.longUrlHash = ?1")
+	Url findByLongUrlHash(String longUrlHash);
 
-    List<Url> findAll();
+	List<Url> findAll();
 }
